@@ -1,18 +1,18 @@
 /*
  * This file is part of Kintinuous.
  *
- * Copyright (C) 2015 The National University of Ireland Maynooth and 
+ * Copyright (C) 2015 The National University of Ireland Maynooth and
  * Massachusetts Institute of Technology
  *
- * The use of the code within this file and all code within files that 
- * make up the software that is Kintinuous is permitted for 
- * non-commercial purposes only.  The full terms and conditions that 
- * apply to the code within this file are detailed within the LICENSE.txt 
- * file and at <http://www.cs.nuim.ie/research/vision/data/kintinuous/code.php> 
- * unless explicitly stated.  By downloading this file you agree to 
+ * The use of the code within this file and all code within files that
+ * make up the software that is Kintinuous is permitted for
+ * non-commercial purposes only.  The full terms and conditions that
+ * apply to the code within this file are detailed within the LICENSE.txt
+ * file and at <http://www.cs.nuim.ie/research/vision/data/kintinuous/code.php>
+ * unless explicitly stated.  By downloading this file you agree to
  * comply with these terms.
  *
- * If you wish to use any of this code for commercial purposes then 
+ * If you wish to use any of this code for commercial purposes then
  * please email commercialisation@nuim.ie.
  */
 
@@ -26,6 +26,7 @@ PangoVis::PangoVis(cv::Mat * depthIntrinsics)
    complete("ui.Complete", false, false),
    pause("ui.Pause", false, true),
    save("ui.Save", false, false),
+   saveTSDF("ui.Save TSDF", false, false),
    resetAll("ui.Reset", false, false),
    volumeShifting("ui.Volume Shifting", !ConfigArgs::get().staticMode, true),
    limitFrontend("ui.Limit Frontend", threadPack.limit.getValue(), true),
@@ -306,6 +307,12 @@ void PangoVis::processClouds()
     }
 }
 
+void PangoVis::saveTsdf()
+{
+  threadPack.tracker-> downloadTsdf();
+  std::cout << "Saving TSDF... just joking lol" << std::endl;
+  std::cout.flush();
+}
 void PangoVis::processTsdf()
 {
     if(threadPack.finalised.getValue())
@@ -334,7 +341,6 @@ void PangoVis::processTsdf()
             }
 
             liveTSDF = new PangoCloud(threadPack.tracker->getLiveTsdf()->cloud);
-
             threadPack.tracker->tsdfAvailable = false;
         }
     }
@@ -532,6 +538,7 @@ void PangoVis::processImages()
 void PangoVis::handleInput()
 {
     //So this is some hilarious access/control!
+    //Why don't you actually write some useful comments
     if(pangolin::Pushed(complete))
     {
         MainController::controller->complete();
@@ -547,7 +554,10 @@ void PangoVis::handleInput()
     {
         MainController::controller->save();
     }
-
+    if(pangolin::Pushed(saveTSDF))
+    {
+        PangoVis::saveTsdf();
+    }
     if(pangolin::Pushed(resetAll))
     {
         MainController::controller->reset();

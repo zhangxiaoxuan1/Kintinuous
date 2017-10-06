@@ -1,18 +1,18 @@
 /*
  * This file is part of Kintinuous.
  *
- * Copyright (C) 2015 The National University of Ireland Maynooth and 
+ * Copyright (C) 2015 The National University of Ireland Maynooth and
  * Massachusetts Institute of Technology
  *
- * The use of the code within this file and all code within files that 
- * make up the software that is Kintinuous is permitted for 
- * non-commercial purposes only.  The full terms and conditions that 
- * apply to the code within this file are detailed within the LICENSE.txt 
- * file and at <http://www.cs.nuim.ie/research/vision/data/kintinuous/code.php> 
- * unless explicitly stated.  By downloading this file you agree to 
+ * The use of the code within this file and all code within files that
+ * make up the software that is Kintinuous is permitted for
+ * non-commercial purposes only.  The full terms and conditions that
+ * apply to the code within this file are detailed within the LICENSE.txt
+ * file and at <http://www.cs.nuim.ie/research/vision/data/kintinuous/code.php>
+ * unless explicitly stated.  By downloading this file you agree to
  * comply with these terms.
  *
- * If you wish to use any of this code for commercial purposes then 
+ * If you wish to use any of this code for commercial purposes then
  * please email commercialisation@nuim.ie.
  *
  * Software License Agreement (BSD License)
@@ -470,7 +470,7 @@ initVolume (PtrStep<short> volume)
 {
   dim3 block (32, 16);
   dim3 grid (1, 1, 1);
-  grid.x = divUp (VOLUME_X, block.x);      
+  grid.x = divUp (VOLUME_X, block.x);
   grid.y = divUp (VOLUME_Y, block.y);
 
   initializeVolume<<<grid, block>>>(volume);
@@ -641,7 +641,7 @@ tsdf23 (const PtrStepSz<float> depthScaled, PtrStep<short> volume,
 
 void
 integrateTsdfVolume (const PtrStepSz<unsigned short>& depth, const Intr& intr,
-                                  const float3& volume_size, const Mat33& Rcurr_inv, const float3& tcurr, 
+                                  const float3& volume_size, const Mat33& Rcurr_inv, const float3& tcurr,
                                   float tranc_dist,
                                   PtrStep<short> volume, DeviceArray2D<float>& depthScaled,
                                   const int3 & voxelWrap, PtrStep<uchar4> color_volume, PtrStepSz<uchar3> colors,

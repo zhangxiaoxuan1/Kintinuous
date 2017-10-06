@@ -1069,7 +1069,7 @@ CloudSlice * KintinuousTracker::getLiveTsdf()
 
 void KintinuousTracker::downloadTsdf()
 {
-    tsdf_volume_->saveTsdfToDisk("TSDFVolume");
+    tsdf_volume_->saveTsdfToDisk(ConfigArgs::get().saveFile);
 }
 
 CloudSlice * KintinuousTracker::getLiveImage()

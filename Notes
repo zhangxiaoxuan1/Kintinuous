@@ -1,0 +1,109 @@
+# UI at PangoVis
+
+if(pangolin::Pushed(complete))
+    {
+        MainController::controller->complete();
+        followPose = false;
+    }
+
+if(pangolin::Pushed(save))
+    {
+        MainController::controller->save();
+    }
+
+# Save at maincontroller
+
+// We are doing onlinedeformation
+void MainController::save()
+  	    boost::thread * cloudSaveThread = new boost::thread(boost::bind(&Deformation::saveCloud, deformation));
+            assert(cloudSaveThread);
+
+            if(ConfigArgs::get().enableMeshGenerator)
+            {
+                boost::thread * meshSaveThread = new boost::thread(boost::bind(&Deformation::saveMesh, deformation));
+                assert(meshSaveThread);
+            }
+// Boost::thread is just a concurrent thread, but boost library
+// boost::bind binds an argument to a function, so in this case, deformation to Deformation::saveCloud.
+// Assert: if the function returns zero (the function is false) then terminate program, like a try/catch. Nothing special.
+// C++ class: 
+MainController::MainController(int argc, char * argv[])
+ : depthIntrinsics(0),
+   pangoVis(0),... <- assign initial values to variables
+
+void Deformation::saveCloud()
+{
+    std::cout << "Saving " << threadPack.pointPool->size() << " points... ";
+    std::cout.flush();
+
+    pcl::PCDWriter writer;
+    std::stringstream strs;
+    strs << ConfigArgs::get().saveFile << "_opt.pcd";
+
+    if(threadPack.pointPool->size() > 0)
+    {
+        writer.write(strs.str(), *threadPack.pointPool, true);
+    }
+
+    std::cout << "PCD saved" << std::endl;
+
+}
+
+// Deformation inherits ThreadObject, which has a variable threadPack:
+// In thread object
+threadPack(ThreadDataPack::get())
+// In ThreadDataPack
+static ThreadDataPack & get()
+        {
+            static ThreadDataPack instance;
+            return instance;
+        }
+
+# Pushing points to the cloud
+
+ThreadDataPack has a PointPool instance, which only Deformation.cpp accessed.
+
+At addCameraLoop,
+Deformation.cpp pushes:
+	    point(0) = threadPack.loopClosureConstraints.at(i)->inliers1/2Proj.at(j)(0);
+            point(1) = threadPack.loopClosureConstraints.at(i)->inliers1/2Proj.at(j)(1);
+            point(2) = threadPack.loopClosureConstraints.at(i)->inliers1/2Proj.at(j)(2);
+to the point cloud, or 
+	    Eigen::Matrix4f prevPose = iSAM->getCameraPose(prevPoseGraph.back().first);
+	    newPoint.x = prevPoseGraph.at(i).second(0);
+            newPoint.y = prevPoseGraph.at(i).second(1);
+            newPoint.z = prevPoseGraph.at(i).second(2);
+
+On the other hand, the version without deformation uses
+void CloudSliceProcessor::save()
+which stick together clouds form threadPack.cloudSlices
+
+threadPack.cloudSlices are processed in CloudSliceProcessor::process().
+
+# ThreadPack.tracker is really important. It literally tracks all the stuff.
+
+# showTSDF at pangoVis:
+
+void PangoVis::processTsdf()
+
+# Process images at TrackInterface:
+
+bool inline TrackerInterface::process()
+which just process the raw data and send everything to frontend->processFrame.
+
+# Processframe at KintinuousTracker.cpp
+For depth, it calls the method integrateTsdfVolume, which is in Cuda lol.
+
+// mutex offers exclusive, non-recursive ownership semantics:
+// A calling thread owns a mutex from the time that it successfully calls either lock or try_lock until it calls unlock.
+// When a thread owns a mutex, all other threads will block (for calls to lock) or receive a false return value (for try_lock) if they attempt to claim ownership of the mutex.
+// A calling thread must not own the mutex prior to calling lock or try_lock.
+
+// LiveTSDF doesn't work, it is LIVE, only outputting the CURRENT information of the tSDF.
+
+  /** \brief Downloads tsdf volume from GPU memory.
+    * \param[out] tsdf Array with tsdf values. if volume resolution is 512x512x512, so for voxel (x,y,z) tsdf value can be retrieved as volume[512*512*z + 512*y + x];
+    */
+  void
+  downloadTsdf (std::vector<float>& tsdf) const;
+

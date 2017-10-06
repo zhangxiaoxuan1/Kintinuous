@@ -313,6 +313,43 @@ void PangoVis::saveTsdf()
   std::cout.flush();
   threadPack.tracker-> downloadTsdf();
   std::cout << "TSDF saved." << std::endl;
+  /**
+  // Code for TSDF volume visualization, not currently working
+  std::string tsdfName = ConfigArgs::get().saveFile;
+  tsdfName += "_tsdf.bin";
+  FILE * fp = fopen(tsdfName.c_str(), "r");
+  float tsdf_value = 0;
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+  size_t count = 0;
+  for (int i = 0; i < 512; i++)
+  {
+    for (int j = 0; j < 512; j++)
+    {
+      bool positiveFirst = false;
+      for (int k = 0; k < 512; k++)
+      {
+        if(fread((void*)(&tsdf_value), sizeof(tsdf_value), 1, fp))
+        {
+          if(k==0 && tsdf_value >= 0)
+          {
+            positiveFirst = true;
+          }
+          // zero crossing?
+          if((tsdf_value < 0 && positiveFirst) || (tsdf_value > 0 && !positiveFirst))
+          {
+            cloud.push_back(pcl::PointXYZ(i, j, k));
+            ++count;
+            break;
+          }
+        }
+      }
+    }
+  }
+  cout << count;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr ptrCloud(&cloud);
+  pcl::visualization::CloudViewer viewer("Cloud Viewer");
+  viewer.showCloud(ptrCloud);
+  **/
 }
 void PangoVis::processTsdf()
 {

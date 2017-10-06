@@ -213,7 +213,8 @@ void TsdfVolume::saveTsdfToDisk(std::string filename) const
     FILE * fp = fopen(tsdfName.c_str(), "wb+");
 
     fwrite(&tsdf[0], sizeof(float) * tsdf.size(), 1, fp);
-
+    int matrix_size = pow(tsdf.size(), 1.0/3) + 1;
+    std::cout << "The TSDF matrix has a size of " << matrix_size << "*" << matrix_size << "*" << matrix_size << std::endl;
     fclose(fp);
 
     std::string weightName = filename;

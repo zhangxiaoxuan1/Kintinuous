@@ -309,9 +309,10 @@ void PangoVis::processClouds()
 
 void PangoVis::saveTsdf()
 {
-  threadPack.tracker-> downloadTsdf();
-  std::cout << "Saving TSDF... just joking lol" << std::endl;
+  std::cout << "Saving TSDF..." << std::endl;
   std::cout.flush();
+  threadPack.tracker-> downloadTsdf();
+  std::cout << "TSDF saved." << std::endl;
 }
 void PangoVis::processTsdf()
 {
